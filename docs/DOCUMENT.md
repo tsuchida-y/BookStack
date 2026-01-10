@@ -27,7 +27,7 @@
 ### 【追加機能（Ver.2以降）】
 
 1.  **AIレコメンド機能**
-    * OpenAI API等を使用し、登録された本の傾向から「次に読むべき未読本（手持ち）」や「新しいおすすめの本（未購入）」を提案。
+    * Supabaseのベクトル検索 (`pgvector`) を活用。手持ちの本をベクトル化して比較し、「次に読むべき未読本」や「好みが近い未購入本」を提案する。
 2.  **積読ビジュアライザー**
     * 「積読」ステータスの本だけを積み上げた「タワー」を表示し、高さで未読量を可視化（プレッシャーではなくユーモアのある表現）。
 3.  **引用・メモ機能**
@@ -60,42 +60,71 @@
 
 ## 4. 技術スタック案（推奨構成）
 
-個人開発〜小規模チーム開発を想定した、モダンで効率的な構成です。
+[書籍データAPIの選定理由](docs/ReasonChoosingAPI.md)
 
-| 区分 | 技術要素                                         | 選定理由                                      |
-| :--- |:---------------------------------------------|:------------------------------------------|
-| **アプリ開発 (Frontend)** | **Jetpack Compose (Android)**                | 宣言的UIは本棚のグリッド描画やアニメーションと相性が良い。仕事で使うのでその練習 |
-| **バックエンド (BaaS)** | **Firebase** (Auth, Firestore, Storage)      | サーバー構築不要で、認証・DB・画像保存が完結するため。              |
-| **書籍データAPI** | **OpenBD** (メイン) + **Google Books API** (サブ) | OpenBDは日本の書籍に強く、書影が高画質で取得しやすい。            |
-| **AI機能** | **ChatGPT**(想定)                              | 書籍リストをJSONで渡してレコメンドを受け取る処理に使用。            |
+| 区分 | 技術要素 | 選定理由 |
+| :--- |:--- |:--- |
+| **アプリ開発 (Frontend)** | **Jetpack Compose (Android)** | 宣言的UIは本棚のグリッド描画やアニメーションと相性が良い。仕事で使うのでその練習 |
+| **バックエンド (BaaS)** | **Supabase** (PostgreSQL) | **SQL学習と将来性重視。**<br>1. **SQLスキル:** AWS等でも汎用的に使えるRDB設計・SQL操作を習得するため。<br>2. **AI親和性:** ベクトル検索機能 (`pgvector`) が標準搭載されており、AIレコメンド機能の実装が容易。<br>3. **コスト:** 無料枠でRDBが利用可能。 |
+| **プッシュ通知** | **Firebase (FCM)** | Supabaseにはプッシュ通知機能がないため、Android標準かつデファクトスタンダードであるFCMのみを部分的に採用。 |
+| **書籍データAPI** | **OpenBD** (優先) + **Google Books API** (予備) | **ハイブリッド構成を採用。**<br>1. **OpenBD:** 高画質な書影取得と高速なレスポンスのため最優先で使用。<br>2. **Google Books:** OpenBDでヒットしない古書や洋書、ページ数情報が欠落している場合の補完として使用。 |
+
+## 補足：書籍データの取得戦略
+
+アプリの独自性である「背表紙の厚み」を再現するため、以下の優先順位でデータをマージする。
+
+1.  **ISBNスキャン**
+2.  **OpenBD問い合わせ**
+    * 成功 → タイトル、著者、書影URL、ページ数を取得。
+    * 失敗(データなし) → Google Booksへ。
+3.  **Google Books問い合わせ** (OpenBD失敗時)
+    * 成功 → 必要な情報を取得。画質はOpenBDより劣る可能性がある点を許容。
+4.  **データ補正 (重要)**
+    * 両方のAPIで「ページ数」が取得できなかった場合、デフォルト値（例: `200`）を一時的に設定し、詳細画面でユーザーによる編集を可能にする。
 
 ---
 
-## 5. データベース設計（Firestore想定）
+## 5. データベース設計（Supabase / PostgreSQL）
 
-### Users コレクション
-* `user_id`: ユーザーID
-* `display_name`: 表示名
-* `created_at`: 作成日
+NoSQL (Collection) ではなく、RDB (Table) 形式で設計。
+※AI機能を見据え、`books`テーブルにベクトル保存用の列を定義。
 
-### Books コレクション（ユーザーごとの所持本）
-* `book_id`: 自動生成ID
-* `user_id`: ユーザーID（参照）
-* `isbn`: ISBNコード
-* `title`: タイトル
-* `authors`: 著者リスト
-* `cover_url`: 表紙画像URL
-* `spine_color`: 抽出した背表紙用の色コード
-* `page_count`: 総ページ数
-* `status`: (enum: `unread`, `reading`, `completed`)
-* `current_page`: 現在読んでいるページ数
-* `added_at`: 登録日
-* `completed_at`: 読了日
+### `profiles` テーブル (ユーザー情報)
+Supabase Authの`users`テーブルと連動させる公開用テーブル。
 
-### ReadingLogs コレクション（ヒートマップ用）
-* `log_id`: 自動生成ID
-* `user_id`: ユーザーID
-* `book_id`: 本のID
-* `read_date`: 読んだ日付 (YYYY-MM-DD)
-* `pages_read`: その日に読んだページ数
-* `duration_minutes`: (オプション) 読んだ時間
+| カラム名 | データ型 | 制約 | 説明 |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | **PK**, FK | AuthユーザーIDと紐付け |
+| `display_name` | `TEXT` | | 表示名 |
+| `avatar_url` | `TEXT` | | アイコン画像URL |
+| `created_at` | `TIMESTAMPTZ` | | 作成日時 |
+
+### `books` テーブル (所持本データ)
+
+| カラム名 | データ型 | 制約 | 説明 |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | **PK** | 自動生成ID (v4) |
+| `user_id` | `UUID` | **FK** | 所有ユーザー (`profiles.id`) |
+| `isbn` | `TEXT` | NOT NULL | ISBNコード (13桁) |
+| `title` | `TEXT` | NOT NULL | タイトル |
+| `authors` | `JSONB` | | 著者リスト (配列で保存) |
+| `cover_url` | `TEXT` | | 表紙画像URL |
+| `spine_color` | `TEXT` | | 抽出した背表紙用の色コード (Hex) |
+| `size_type` | `TEXT` | | 判型 (S/M/L/XL) ※Cコード判定結果 |
+| `page_count` | `INTEGER` | | 総ページ数 |
+| `status` | `TEXT` | | `unread`, `reading`, `completed` |
+| `current_page` | `INTEGER` | | 現在読んでいるページ数 |
+| `embedding` | `VECTOR(1536)` | | **AI用: 本の内容・特徴ベクトル** |
+| `added_at` | `TIMESTAMPTZ` | | 登録日 |
+| `completed_at` | `TIMESTAMPTZ` | | 読了日 |
+
+### `reading_logs` テーブル (ヒートマップ用)
+
+| カラム名 | データ型 | 制約 | 説明 |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | **PK** | 自動生成ID |
+| `user_id` | `UUID` | **FK** | ユーザーID |
+| `book_id` | `UUID` | **FK** | 本ID (`books.id`) |
+| `read_date` | `DATE` | NOT NULL | 読んだ日付 |
+| `pages_read` | `INTEGER` | | その日に読んだページ数 |
+| `duration_mins` | `INTEGER` | | (オプション) 読書時間(分) |
