@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     // Composeでデータのシリアライズ（Supabase等）を使う場合は以下が必要になることがあります
-    kotlin("plugin.serialization") version "1.9.23"
+    kotlin("plugin.serialization") version "2.0.21"
     alias(libs.plugins.compose.compiler)
 }
 
@@ -54,7 +54,6 @@ android {
 
     buildFeatures {
         compose = true     // Composeを有効化
-        viewBinding = false // 不要ならfalseに
         buildConfig = true
     }
 
@@ -72,8 +71,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 
     // Jetpack Compose 関連 (BOMを使ってバージョン管理)
-    val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
-    implementation(composeBom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -96,7 +93,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
