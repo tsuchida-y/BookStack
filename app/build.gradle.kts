@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     // Composeでデータのシリアライズ（Supabase等）を使う場合は以下が必要になることがあります
     kotlin("plugin.serialization") version "1.9.23"
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -55,11 +56,6 @@ android {
         compose = true     // Composeを有効化
         viewBinding = false // 不要ならfalseに
         buildConfig = true
-    }
-
-    composeOptions {
-        // Kotlinのバージョンに依存します。1.9.xなら1.5.10〜1.5.11が一般的
-        kotlinCompilerExtensionVersion = "1.5.11"
     }
 
     packaging {
