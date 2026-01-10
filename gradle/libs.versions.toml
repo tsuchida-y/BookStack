@@ -11,7 +11,7 @@ composeBom = "2024.06.00"
 
 # 追加ライブラリ用
 supabase = "3.0.1"
-ktor = "2.3.12"
+ktor = "3.0.1"
 coil = "2.6.0"
 
 [libraries]
