@@ -1,4 +1,4 @@
-package com.example.bookstack
+package com.example.bookstack // ← あなたのパッケージ名
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // XMLを使わず、Composeで画面を描画
         setContent {
             MaterialTheme {
                 Surface(

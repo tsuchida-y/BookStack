@@ -70,7 +70,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    // Jetpack Compose 関連 (BOMを使ってバージョン管理)
+    // Jetpack Compose 関連
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom) // テスト用にも適用
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -78,7 +82,7 @@ dependencies {
 
     // Supabase
     implementation(libs.supabase.postgrest)
-    implementation(libs.supabase.gotrue)
+    implementation(libs.supabase.auth)
 
     // Ktor (API通信用)
     implementation(libs.ktor.client.core)

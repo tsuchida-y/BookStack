@@ -10,7 +10,7 @@ activityCompose = "1.9.1"
 composeBom = "2024.06.00"
 
 # 追加ライブラリ用
-supabase = "2.6.0"
+supabase = "3.0.1"
 ktor = "2.3.12"
 coil = "2.6.0"
 
@@ -27,10 +27,9 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
-# Supabase (Gotrue:認証, Postgrest:DB操作)
+# Supabase (auth:認証, Postgrest:DB操作)
 supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt", version.ref = "supabase" }
-supabase-gotrue = { group = "io.github.jan-tennert.supabase", name = "gotrue-kt", version.ref = "supabase" }
-
+supabase-auth = { group = "io.github.jan-tennert.supabase", name = "auth-kt", version.ref = "supabase" }
 # Ktor (HTTP Client)
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
