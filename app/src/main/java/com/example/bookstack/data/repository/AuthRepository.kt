@@ -1,4 +1,4 @@
-package com.example.bookstack.data
+package com.example.bookstack.data.repository
 
 import com.example.bookstack.SupabaseConnectModule
 import io.github.jan.supabase.auth.auth
