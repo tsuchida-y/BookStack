@@ -83,6 +83,8 @@ dependencies {
     // Supabase
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.auth)
+    implementation(libs.supabase.compose.auth)
+
 
     // Ktor (API通信用)
     implementation(libs.ktor.client.core)
