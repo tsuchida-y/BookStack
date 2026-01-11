@@ -16,7 +16,9 @@ object SupabaseConnectModule {
                 ignoreUnknownKeys = true
             })
         }
-
-        install(Auth)
+        install(Auth) {
+            // 匿名認証を有効にする設定
+            alwaysAutoRefresh = true
+        }
     }
 }
