@@ -1,27 +1,23 @@
 package com.example.bookstack.data.repository
 
-import com.example.bookstack.SupabaseConnectModule
-import io.github.jan.supabase.auth.auth
+import com.example.bookstack.data.remote.auth.AuthDataSource // 新しいデータソースをインポート
+import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.coroutines.flow.StateFlow
 
-class AuthRepository {
-    private val auth = SupabaseConnectModule.client.auth
+// AuthDataSourceインターフェースに依存するように変更
+class AuthRepository(private val authDataSource: AuthDataSource) {
 
-    // 匿名でサインイン
     suspend fun signInAnonymously() {
-        auth.signInAnonymously()
+        authDataSource.signInAnonymously() // データソースに委譲
     }
 
-    // すでにサインイン済みかチェック
-    // sessionStatus が Authenticated ならログイン済み
-    val sessionStatus = auth.sessionStatus
+    val sessionStatus: StateFlow<SessionStatus> = authDataSource.sessionStatus // データソースから取得
 
-    // 現在のユーザーIDを取得（デバッグ用など）
     fun getCurrentUserId(): String? {
-        return auth.currentUserOrNull()?.id
+        return authDataSource.getCurrentUserId() // データソースから取得
     }
 
-    // ログアウト
     suspend fun signOut() {
-        auth.signOut()
+        authDataSource.signOut() // データソースに委譲
     }
 }
