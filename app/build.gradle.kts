@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     // Composeでデータのシリアライズ（Supabase等）を使う場合は以下が必要になることがあります
-    kotlin("plugin.serialization") version "2.0.21"
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
