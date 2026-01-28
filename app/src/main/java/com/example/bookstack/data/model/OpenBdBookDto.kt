@@ -1,6 +1,7 @@
 @file:OptIn(kotlinx.serialization.InternalSerializationApi::class)
 package com.example.bookstack.data.model
 
+import com.example.bookstack.data.util.BookSizeConverter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -41,7 +42,16 @@ data class OpenBdOnixDto(
 @Serializable
 data class OpenBdDescriptiveDetailDto(
     @SerialName("Extent")
-    val extent: List<OpenBdExtentDto>? = null
+    val extent: List<OpenBdExtentDto>? = null,
+    @SerialName("Subject")
+    val subject: List<OpenBdSubjectDto>? = null
+)
+@Serializable
+data class OpenBdSubjectDto( // ★ 新しく定義
+    @SerialName("SubjectSchemeIdentifier")
+    val subjectSchemeIdentifier: String? = null, // "29" がCコード
+    @SerialName("SubjectCode")
+    val subjectCode: String? = null
 )
 
 @Serializable
@@ -64,6 +74,11 @@ fun OpenBdBookDto.toBook(): Book? {
     // cover URLが空文字列の場合にnullに変換
     val coverUrl = summary.cover?.takeIf { it.isNotBlank() }
 
+    // Cコードの取得 (OpenBDのJSON構造から抽出)
+    val cCode = this.onix?.descriptiveDetail?.subject
+        ?.firstOrNull { it.subjectSchemeIdentifier == "29" } // 29はCコード
+        ?.subjectCode
+
     // ONIXデータからページ数を抽出
     val pageCount = this.onix
         ?.descriptiveDetail
@@ -76,8 +91,8 @@ fun OpenBdBookDto.toBook(): Book? {
         isbn = isbn,
         title = summary.title ?: "タイトル不明",
         author = summary.author ?: "著者不明",
-        coverImageUrl = coverUrl,
+        coverImageUrl = summary.cover,
         pageCount = pageCount,
-        bookSize = null // 判型サイズは後のIssueで設定
+        bookSize = BookSizeConverter.convertCcodeToBookSize(cCode) // 判型サイズは後のIssueで設定
     )
 }

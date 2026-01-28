@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation("io.insert-koin:koin-android:3.5.3")
 
     // Jetpack Compose 関連
     val composeBom = platform(libs.androidx.compose.bom)
@@ -97,6 +98,8 @@ dependencies {
 
     // テスト・デバッグ
     testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation(libs.ktor.client.mock) // Ktor MockEngine for testing
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
