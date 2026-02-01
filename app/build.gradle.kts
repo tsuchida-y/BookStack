@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.bookstack"
-    compileSdk = 34 // 現在36になっていたが、安定版の34を使用
+    compileSdk = 36 // 現在36になっていたが、安定版の34を使用
 
     defaultConfig {
         applicationId = "com.example.bookstack"
@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation("io.insert-koin:koin-android:3.5.3")
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Jetpack Compose 関連
     val composeBom = platform(libs.androidx.compose.bom)

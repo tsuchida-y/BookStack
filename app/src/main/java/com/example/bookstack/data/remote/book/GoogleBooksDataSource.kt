@@ -46,7 +46,7 @@ class GoogleBooksDataSource(private val client: HttpClient) : BookDataSource {
             val response: HttpResponse = client.get("$BASE_URL/volumes") {
                 url {
                     parameters.append("q", keyword)
-                    parameters.append("maxResults", "10")
+                    parameters.append("maxResults", "20")
                 }
             }
 
