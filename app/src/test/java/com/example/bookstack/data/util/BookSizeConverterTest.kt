@@ -42,4 +42,41 @@ class BookSizeConverterTest {
         Assert.assertEquals(BookSize.UNKNOWN, BookSizeConverter.convertCcodeToBookSize("ABC"))
         Assert.assertEquals(BookSize.UNKNOWN, BookSizeConverter.convertCcodeToBookSize(null))
     }
+
+    @Test
+    fun `convertKeywordsToBookSize - 岩波文庫を文庫本と判定`() {
+        val result = BookSizeConverter.convertKeywordsToBookSize(
+            title = "こころ",
+            publisher = "岩波文庫"
+        )
+        Assert.assertEquals(BookSize.S, result)
+    }
+
+    @Test
+    fun `convertKeywordsToBookSize - 講談社現代新書を新書と判定`() {
+        val result = BookSizeConverter.convertKeywordsToBookSize(
+            title = "サピエンス全史",
+            publisher = "河出新書"
+        )
+        Assert.assertEquals(BookSize.M, result)
+    }
+
+    @Test
+    fun `convertKeywordsToBookSize - ハードカバーを四六判と判定`() {
+        val result = BookSizeConverter.convertKeywordsToBookSize(
+            title = "プログラミング入門",
+            publisher = "単行本ハードカバー"
+        )
+        Assert.assertEquals(BookSize.M, result)
+    }
+
+    @Test
+    fun `convertKeywordsToBookSize - オライリーを大型本と判定`() {
+        val result = BookSizeConverter.convertKeywordsToBookSize(
+            title = "Effective Java",
+            publisher = "オライリージャパン"
+        )
+        Assert.assertEquals(BookSize.XL, result)
+    }
+
 }
