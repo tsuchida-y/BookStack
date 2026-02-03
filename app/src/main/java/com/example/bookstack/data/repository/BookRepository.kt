@@ -19,9 +19,7 @@ class BookRepository(
     private val googleBooksDataSource: GoogleBooksDataSource
 ) {
     /**
-     * ISBNコードまたはキーワードを元に書籍情報を取得する。
-     *
-     * 取得の優先順位:
+     * 書籍情報の取得優先順位:
      * 1. OpenBD APIでISBN検索
      * 2. Google Books APIでISBN検索（OpenBDで見つからない場合）
      * 3. Google Books APIでキーワード検索（ISBNで見つからず、keywordが指定されている場合）
@@ -31,7 +29,7 @@ class BookRepository(
      * @return 書籍情報（Book）、見つからない場合はnull
      */
     suspend fun getBookDetails(isbn: String, keyword: String? = null): Book? {
-        // 1. まずOpenBD APIでISBN検索を試行
+        // 1. OpenBD APIでISBN検索を試行
         val bookFromOpenBd = openBdDataSource.getBookByIsbn(isbn)
         if (bookFromOpenBd != null) {
             return enhanceBookWithSize(bookFromOpenBd)
