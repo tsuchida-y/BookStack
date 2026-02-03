@@ -13,12 +13,28 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 /**
- * ネットワーク通信（SupabaseおよびKtor）に関連する道具（依存関係）を定義する場所。
+ * ⚠️ **このファイルは非推奨です。削除予定。**
+ *
+ * 以前はシングルトンobjectとして実装されていましたが、
+ * Koinによる依存性注入のメリット（テスト容易性、結合度の低下）を
+ * 活かすため、AppModule.kt にクライアント生成ロジックを移動しました。
+ *
+ * **このファイルは削除してください。**
+ *
+ * 移行先: com.example.bookstack.di.appModule
+ * - HttpClient は appModule で single<HttpClient> { ... } として定義
+ * - SupabaseClient は appModule で single<SupabaseClient> { ... } として定義
  */
+@Deprecated(
+    message = "Use appModule instead. This object will be removed in future versions.",
+    replaceWith = ReplaceWith("appModule", "com.example.bookstack.di.appModule"),
+    level = DeprecationLevel.ERROR
+)
 object SupabaseConnectModule {
 
-    // 1. Ktor HttpClient の定義 (OpenBDなどの外部API用)
-    // これを定義することで、AppModule から参照可能になります
+    // ⚠️ これらのプロパティは使用しないでください
+    // AppModule から Koin 経由で取得してください
+
     val ktorClient = HttpClient(OkHttp) {
         install(ContentNegotiation) {
             json(Json {
@@ -29,12 +45,10 @@ object SupabaseConnectModule {
         }
     }
 
-    // 2. Supabase Client の定義
     val supabaseClient = createSupabaseClient(
         supabaseUrl = BuildConfig.SUPABASE_URL,
         supabaseKey = BuildConfig.SUPABASE_KEY
     ) {
-        // v3系の推奨される記述方法
         install(Postgrest) {
             serializer = KotlinXSerializer(Json {
                 ignoreUnknownKeys = true
