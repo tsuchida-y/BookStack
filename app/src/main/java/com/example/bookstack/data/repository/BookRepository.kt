@@ -2,6 +2,7 @@ package com.example.bookstack.data.repository
 
 import com.example.bookstack.data.model.Book
 import com.example.bookstack.data.model.BookSize
+import com.example.bookstack.data.remote.book.BookDataSource
 import com.example.bookstack.data.remote.book.GoogleBooksDataSource
 import com.example.bookstack.data.remote.book.OpenBdDataSource
 import com.example.bookstack.data.util.BookSizeConverter
@@ -15,8 +16,8 @@ import com.example.bookstack.data.util.BookSizeConverter
  * @param googleBooksDataSource Google Books APIのデータソース（フォールバック）
  */
 class BookRepository(
-    private val openBdDataSource: OpenBdDataSource,
-    private val googleBooksDataSource: GoogleBooksDataSource
+    private val openBdDataSource: BookDataSource,
+    private val googleBooksDataSource: BookDataSource
 ) {
     /**
      * 書籍情報の取得優先順位:
