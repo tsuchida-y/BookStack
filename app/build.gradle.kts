@@ -10,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.example.bookstack"
-    compileSdk = 36 // 現在36になっていたが、安定版の34を使用
+    compileSdk = 35 // 現在36になっていたが、安定版の34を使用
 
     defaultConfig {
         applicationId = "com.example.bookstack"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -45,11 +45,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -96,6 +96,18 @@ dependencies {
 
     // Coil (画像表示用 Compose版)
     implementation(libs.coil.compose)
+
+    // CameraX (カメラ機能)
+    implementation("androidx.camera:camera-core:1.3.1")
+    implementation("androidx.camera:camera-camera2:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+    implementation("androidx.camera:camera-view:1.3.1")
+
+    // ML Kit (バーコードスキャン)
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // Accompanist (Compose用の権限ハンドリング)
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
     // テスト・デバッグ
     testImplementation(libs.junit)
