@@ -9,6 +9,7 @@ import com.example.bookstack.data.remote.book.OpenBdDataSource
 import com.example.bookstack.data.repository.AuthRepository
 import com.example.bookstack.data.repository.BookRepository
 import com.example.bookstack.ui.auth.AuthViewModel
+import com.example.bookstack.ui.scan.BookScanViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.SettingsSessionManager
@@ -96,5 +97,10 @@ val appModule = module {
     // Auth ViewModel
     viewModel {
         AuthViewModel(repository = get())
+    }
+
+    // BookScan ViewModel
+    viewModel {
+        BookScanViewModel(bookRepository = get())
     }
 }
