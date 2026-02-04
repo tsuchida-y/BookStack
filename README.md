@@ -3,7 +3,16 @@
 「あなたの読書生活を、美しく可視化する」蔵書管理・積読消化アプリ。
 物理的な本棚のようなビジュアルと、読書習慣の可視化してモチベーションを維持します。
 
-[設計書](docs/DOCUMENT.md)
+## 📚 ドキュメント
+
+- [設計書 (DOCUMENT.md)](docs/DOCUMENT.md)
+- [ER図 (Entity Relationship Diagram)](docs/diagrams/erd.md)
+
+### 実装完了レポート
+- [Issue #1 & #2: プロジェクト初期設定とSupabase接続](docs/issue_docs/Issue1_2_Implementation_Report.md)
+- [Issue #3: 書籍API取得実装](docs/issue_docs/Issue3_Implementation_Report.md)
+- [Issue #4: バーコードスキャン実装](docs/issue_docs/issue4_Barcode_Scan_Implementation_Report.md)
+- [DI リファクタリング完了報告](docs/issue_docs/DI_Refactoring_Summary.md)
 
 ## 🛠 技術スタック
 
