@@ -69,7 +69,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation("io.insert-koin:koin-android:3.5.3")
+    implementation(libs.koin.android)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Jetpack Compose 関連
@@ -77,10 +77,10 @@ dependencies {
     implementation(composeBom)
     androidTestImplementation(composeBom) // テスト用にも適用
 
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
 
     // Supabase
     implementation(libs.supabase.postgrest)
@@ -98,24 +98,24 @@ dependencies {
     implementation(libs.coil.compose)
 
     // CameraX (カメラ機能)
-    implementation("androidx.camera:camera-core:1.3.1")
-    implementation("androidx.camera:camera-camera2:1.3.1")
-    implementation("androidx.camera:camera-lifecycle:1.3.1")
-    implementation("androidx.camera:camera-view:1.3.1")
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
 
     // ML Kit (バーコードスキャン)
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation(libs.mlkit.barcode.scanning)
 
     // Accompanist (Compose用の権限ハンドリング)
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation(libs.accompanist.permissions)
 
     // テスト・デバッグ
     testImplementation(libs.junit)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock) // Ktor MockEngine for testing
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
