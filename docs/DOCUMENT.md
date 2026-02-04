@@ -89,6 +89,8 @@
 NoSQL (Collection) ではなく、RDB (Table) 形式で設計。
 ※AI機能を見据え、`books`テーブルにベクトル保存用の列を定義。
 
+**📊 ER図:** [詳細なER図とリレーションシップの説明](./diagrams/erd.md)
+
 ### `profiles` テーブル (ユーザー情報)
 Supabase Authの`users`テーブルと連動させる公開用テーブル。
 
