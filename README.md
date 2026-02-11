@@ -10,6 +10,7 @@
 
 ### 実装完了レポート
 - [Issue #1 & #2: プロジェクト初期設定とSupabase接続](docs/issue_docs/Issue1_2_Implementation_Report.md)
+- [Issue #2.1: Supabaseデータベース保存機能](docs/issue_docs/Issue2_1_Implementation_Report.md)
 - [Issue #3: 書籍API取得実装](docs/issue_docs/Issue3_Implementation_Report.md)
 - [Issue #4: バーコードスキャン実装](docs/issue_docs/issue4_Barcode_Scan_Implementation_Report.md)
 - [DI リファクタリング完了報告](docs/issue_docs/DI_Refactoring_Summary.md)
