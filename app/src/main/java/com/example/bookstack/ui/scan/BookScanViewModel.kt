@@ -3,6 +3,7 @@ package com.example.bookstack.ui.scan
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bookstack.data.model.Book
+import com.example.bookstack.data.repository.BookDatabaseRepository
 import com.example.bookstack.data.repository.BookRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,11 +28,11 @@ sealed interface BookScanUiState {
  * 責務:
  * 1. ISBNコードから書籍情報を取得（BookRepository経由）
  * 2. 取得した書籍情報の確認画面表示
- * 3. Supabaseへの保存処理（将来実装）
+ * 3. Supabaseへの保存処理（BookDatabaseRepository経由）
  */
 class BookScanViewModel(
-    private val bookRepository: BookRepository
-    // TODO: BookDatabaseRepository を追加（Supabase保存用）
+    private val bookRepository: BookRepository,
+    private val bookDatabaseRepository: BookDatabaseRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BookScanUiState>(BookScanUiState.Idle)
@@ -65,13 +66,22 @@ class BookScanViewModel(
 
     /**
      * 取得した書籍情報をSupabaseに保存する。
-     * TODO: 実装する
      */
     fun saveBook(book: Book) {
         viewModelScope.launch {
+            _uiState.value = BookScanUiState.Loading
+
             try {
-                // TODO: BookDatabaseRepository.insertBook(book) を呼び出す
-                _uiState.value = BookScanUiState.Saved
+                // Supabaseに書籍情報を保存
+                val result = bookDatabaseRepository.insertBook(book)
+
+                result.onSuccess {
+                    _uiState.value = BookScanUiState.Saved
+                }.onFailure { exception ->
+                    _uiState.value = BookScanUiState.Error(
+                        "保存に失敗しました: ${exception.message}"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = BookScanUiState.Error(
                     "保存に失敗しました: ${e.message}"
