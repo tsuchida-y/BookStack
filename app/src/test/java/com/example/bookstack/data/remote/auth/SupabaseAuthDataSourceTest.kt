@@ -69,7 +69,7 @@ class SupabaseAuthDataSourceTest {
     fun `getCurrentUserId - ユーザーがログイン中の場合IDを返すこと`() = runTest {
         // Given
         dataSource.signInAnonymously()
-        dataSource.currentUserId = "user-123"
+        dataSource.setCurrentUserId("user-123")
 
         // When
         val userId = dataSource.getCurrentUserId()
@@ -94,7 +94,7 @@ class SupabaseAuthDataSourceTest {
     fun `signOut - ログアウトが正常に実行されること`() = runTest {
         // Given: ログイン状態
         dataSource.signInAnonymously()
-        dataSource.currentUserId = "user-123"
+        dataSource.setCurrentUserId("user-123")
 
         // When
         dataSource.signOut()
@@ -117,7 +117,7 @@ class SupabaseAuthDataSourceTest {
     private class MockAuthDataSource : AuthDataSource {
         var signInAnonymouslyCallCount = 0
         var signOutCallCount = 0
-        var currentUserId: String? = null
+        private var _currentUserId: String? = null
 
         private val _sessionStatus = MutableStateFlow<SessionStatus>(
             SessionStatus.NotAuthenticated(isSignOut = false)
@@ -135,15 +135,20 @@ class SupabaseAuthDataSourceTest {
                     user = null
                 )
             )
-            currentUserId = "anonymous-user-id"
+            _currentUserId = "anonymous-user-id"
         }
 
-        override fun getCurrentUserId(): String? = currentUserId
+        override fun getCurrentUserId(): String? = _currentUserId
+
+        // テスト用のヘルパーメソッド
+        fun setCurrentUserId(userId: String?) {
+            _currentUserId = userId
+        }
 
         override suspend fun signOut() {
             signOutCallCount++
             _sessionStatus.value = SessionStatus.NotAuthenticated(isSignOut = true)
-            currentUserId = null
+            _currentUserId = null
         }
     }
 }
