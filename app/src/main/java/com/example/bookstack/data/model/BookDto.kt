@@ -37,7 +37,7 @@ data class BookDto(
     val pageCount: Int? = null,
 
     @SerialName("status")
-    val status: String = "unread", // unread/reading/completed
+    val status: String? = "unread", // unread/reading/completed
 
     @SerialName("current_page")
     val currentPage: Int = 0,
