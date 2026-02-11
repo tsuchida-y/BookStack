@@ -6,7 +6,10 @@ import com.example.bookstack.data.remote.auth.SupabaseAuthDataSource
 import com.example.bookstack.data.remote.book.BookDataSource
 import com.example.bookstack.data.remote.book.GoogleBooksDataSource
 import com.example.bookstack.data.remote.book.OpenBdDataSource
+import com.example.bookstack.data.remote.database.BookDatabaseDataSource
+import com.example.bookstack.data.remote.database.SupabaseBookDatabaseDataSource
 import com.example.bookstack.data.repository.AuthRepository
+import com.example.bookstack.data.repository.BookDatabaseRepository
 import com.example.bookstack.data.repository.BookRepository
 import com.example.bookstack.ui.auth.AuthViewModel
 import com.example.bookstack.ui.scan.BookScanViewModel
@@ -70,12 +73,17 @@ val appModule = module {
         SupabaseAuthDataSource(supabaseClient = get())
     }
 
-    // Book DataSource
+    // Book DataSource (外部API用)
     single { OpenBdDataSource(client = get()) }
     single { GoogleBooksDataSource(client = get()) }
 
     // 後方互換性のため、BookDataSourceインターフェースとしてOpenBdDataSourceを提供
     single<BookDataSource> { get<OpenBdDataSource>() }
+
+    // Book Database DataSource (Supabase DB操作用)
+    single<BookDatabaseDataSource> {
+        SupabaseBookDatabaseDataSource(supabaseClient = get())
+    }
 
     // ===== Data Layer: Repository =====
 
@@ -84,11 +92,19 @@ val appModule = module {
         AuthRepository(authDataSource = get())
     }
 
-    // Book Repository
+    // Book Repository (外部API用)
     single {
         BookRepository(
             openBdDataSource = get(),
             googleBooksDataSource = get()
+        )
+    }
+
+    // Book Database Repository (Supabase DB操作用)
+    single {
+        BookDatabaseRepository(
+            bookDatabaseDataSource = get(),
+            authRepository = get()
         )
     }
 
@@ -101,6 +117,9 @@ val appModule = module {
 
     // BookScan ViewModel
     viewModel {
-        BookScanViewModel(bookRepository = get())
+        BookScanViewModel(
+            bookRepository = get(),
+            bookDatabaseRepository = get()
+        )
     }
 }
