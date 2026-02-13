@@ -13,6 +13,7 @@ camerax = "1.3.1"
 mlkitBarcode = "17.2.0"
 accompanist = "0.32.0"
 coroutinesTest = "1.9.0"
+palette = "1.0.0"
 
 # 追加ライブラリ用
 supabase = "3.0.1"
@@ -47,6 +48,9 @@ ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref =
 
 # Coil (Image Loading for Compose)
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+# Palette (Color Extraction)
+androidx-palette = { group = "androidx.palette", name = "palette-ktx", version.ref = "palette" }
 
 # テスト用
 junit = { group = "junit", name = "junit", version.ref = "junit" }

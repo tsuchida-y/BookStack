@@ -97,6 +97,9 @@ dependencies {
     // Coil (画像表示用 Compose版)
     implementation(libs.coil.compose)
 
+    // Palette (ドミナントカラー抽出用)
+    implementation(libs.androidx.palette)
+
     // CameraX (カメラ機能)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
