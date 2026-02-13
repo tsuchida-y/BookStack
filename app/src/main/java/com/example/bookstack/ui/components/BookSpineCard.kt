@@ -125,39 +125,45 @@ fun BookSpineCard(
         ) {
             // タイトルと著者を縦書き風に表示
             Column(
-                modifier = Modifier.rotate(-90f),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(vertical = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Top // 背表紙なので上詰めで配置
             ) {
-                // タイトル
-                Text(
-                    text = book.title,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.8.sp
-                    ),
-                    color = getContrastingTextColor(dominantColor),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center
-                )
-
-                // 著者名（小さく表示）
-                if (book.author.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                // タイトル部分
+                book.title.forEach { char ->
                     Text(
-                        text = book.author,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Normal,
-                            letterSpacing = 0.3.sp
+                        text = char.toString(),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 7.sp,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 1.sp // 文字の間隔を調整
                         ),
-                        color = getContrastingTextColor(dominantColor).copy(alpha = 0.8f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center
+                        color = getContrastingTextColor(dominantColor),
+                        modifier = Modifier.rotate(
+                            // 縦書きで回転が必要な記号を判定
+                            if (char == 'ー' || char == '～' || char == '—' || char == '-') 90f else 0f
+                        )
                     )
+                }
+
+                // タイトルと著者の間に少し隙間を空ける
+                if (book.author.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 著者名（少し小さめの縦書き）
+                    book.author.take(10).forEach { char -> // 長すぎる場合は制限
+                        Text(
+                            text = char.toString(),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Normal,
+                                lineHeight = 12.sp
+                            ),
+                            color = getContrastingTextColor(dominantColor).copy(alpha = 0.8f)
+                        )
+                    }
                 }
             }
         }
@@ -180,11 +186,11 @@ fun BookSpineCard(
  */
 private fun getHeightForBookSize(bookSize: BookSize?): Dp {
     return when (bookSize) {
-        BookSize.S -> 240.dp      // 文庫、新書 (1.2倍)
-        BookSize.M -> 288.dp      // 四六判、B6判 (1.2倍)
-        BookSize.L -> 336.dp      // A5判、B5判 (1.2倍)
-        BookSize.XL -> 384.dp     // A4判以上 (1.2倍)
-        BookSize.UNKNOWN, null -> 288.dp // デフォルト (1.2倍)
+        BookSize.S -> 120.dp      // 文庫、新書 (1.2倍)
+        BookSize.M -> 144.dp      // 四六判、B6判 (1.2倍)
+        BookSize.L -> 168.dp      // A5判、B5判 (1.2倍)
+        BookSize.XL -> 192.dp     // A4判以上 (1.2倍)
+        BookSize.UNKNOWN, null -> 144.dp // デフォルト (1.2倍)
     }
 }
 
@@ -196,12 +202,12 @@ private fun getHeightForBookSize(bookSize: BookSize?): Dp {
  */
 private fun getWidthForPageCount(pageCount: Int?): Dp {
     return when {
-        pageCount == null -> 75.dp           // 不明 (1.5倍)
-        pageCount <= 100 -> 60.dp            // 薄い本 (1.5倍)
-        pageCount <= 200 -> 75.dp            // 標準 (1.5倍)
-        pageCount <= 300 -> 90.dp            // やや厚い (1.5倍)
-        pageCount <= 500 -> 105.dp           // 厚い (1.5倍)
-        else -> 120.dp                       // 非常に厚い (1.5倍)
+        pageCount == null -> 37.5.dp          // 不明 (1.5倍)
+        pageCount <= 100 -> 30.dp            // 薄い本 (1.5倍)
+        pageCount <= 200 -> 37.5.dp          // 標準 (1.5倍)
+        pageCount <= 300 -> 45.dp            // やや厚い (1.5倍)
+        pageCount <= 500 -> 52.5.dp          // 厚い (1.5倍)
+        else -> 60.dp                        // 非常に厚い (1.5倍)
     }
 }
 
@@ -216,7 +222,7 @@ private fun getHeightVariation(isbn: String): Dp {
     // ISBNのハッシュコードをシード値として使用
     val seed = isbn.hashCode()
     val variation = (seed % 11) - 5 // -5 ~ +5の範囲
-    return variation.dp
+    return (variation.toFloat() * 0.5f).dp
 }
 
 /**
