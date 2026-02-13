@@ -12,6 +12,7 @@ import com.example.bookstack.data.repository.AuthRepository
 import com.example.bookstack.data.repository.BookDatabaseRepository
 import com.example.bookstack.data.repository.BookRepository
 import com.example.bookstack.ui.auth.AuthViewModel
+import com.example.bookstack.ui.booklist.BookListViewModel
 import com.example.bookstack.ui.scan.BookScanViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -111,14 +112,21 @@ val appModule = module {
     // ===== UI Layer: ViewModel =====
 
     // Auth ViewModel
-    viewModel {
+    viewModel<AuthViewModel> {
         AuthViewModel(repository = get())
     }
 
     // BookScan ViewModel
-    viewModel {
+    viewModel<BookScanViewModel> {
         BookScanViewModel(
             bookRepository = get(),
+            bookDatabaseRepository = get()
+        )
+    }
+
+    // BookList ViewModel (本棚画面用)
+    viewModel<BookListViewModel> {
+        BookListViewModel(
             bookDatabaseRepository = get()
         )
     }
