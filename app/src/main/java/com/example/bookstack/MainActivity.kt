@@ -13,9 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.bookstack.ui.auth.AuthViewModel
+import com.example.bookstack.ui.booklist.BookListViewModel
+import com.example.bookstack.ui.booklist.BookshelfScreen
 import com.example.bookstack.ui.scan.BookScanScreen
 import com.example.bookstack.ui.scan.BookScanViewModel
 import com.example.bookstack.ui.theme.BookStackTheme
@@ -36,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     // ✅ Koin経由でViewModelを取得（依存関係は自動注入される）
     private val authViewModel: AuthViewModel by viewModel()
+    private val bookListViewModel: BookListViewModel by viewModel()
     private val bookScanViewModel: BookScanViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +55,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    // 画面遷移の状態管理
+                    var showScanScreen by remember { mutableStateOf(false) }
+
                     // 認証状態を監視
                     val sessionStatus by authViewModel.sessionStatus.collectAsState()
 
@@ -62,13 +71,24 @@ class MainActivity : ComponentActivity() {
                     when (sessionStatus) {
                         is SessionStatus.Authenticated -> {
                             Log.d(TAG, "SessionStatus: Authenticated")
-                            // ✅ 認証完了後にスキャン画面を表示
-                            BookScanScreen(
-                                viewModel = bookScanViewModel,
-                                onNavigateBack = {
-                                    finish() // アプリを終了
-                                }
-                            )
+                            // ✅ 認証完了後に本棚画面またはスキャン画面を表示
+                            if (showScanScreen) {
+                                BookScanScreen(
+                                    viewModel = bookScanViewModel,
+                                    onNavigateBack = {
+                                        showScanScreen = false
+                                        // スキャン画面から戻ったら本棚をリロード
+                                        bookListViewModel.loadBooks()
+                                    }
+                                )
+                            } else {
+                                BookshelfScreen(
+                                    viewModel = bookListViewModel,
+                                    onAddBookClick = {
+                                        showScanScreen = true
+                                    }
+                                )
+                            }
                         }
                         is SessionStatus.NotAuthenticated -> {
                             Log.d(TAG, "SessionStatus: NotAuthenticated - showing loading")
