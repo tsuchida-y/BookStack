@@ -11,7 +11,8 @@ data class Book(
     val author: String,
     val coverImageUrl: String?, // 書籍の表紙画像URL
     val pageCount: Int?,        // ページ数、情報がない場合はnull
-    val bookSize: BookSize? = null // 判型サイズ (S/M/L/XLなど)、初期段階ではnull
+    val bookSize: BookSize? = null, // 判型サイズ (S/M/L/XLなど)、初期段階ではnull
+    val status: String = "unread" // 読書ステータス (unread/reading/completed)
 )
 
 /**
