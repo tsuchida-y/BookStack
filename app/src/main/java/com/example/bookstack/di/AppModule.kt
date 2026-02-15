@@ -12,6 +12,7 @@ import com.example.bookstack.data.repository.AuthRepository
 import com.example.bookstack.data.repository.BookDatabaseRepository
 import com.example.bookstack.data.repository.BookRepository
 import com.example.bookstack.ui.auth.AuthViewModel
+import com.example.bookstack.ui.bookdetail.BookDetailViewModel
 import com.example.bookstack.ui.booklist.BookListViewModel
 import com.example.bookstack.ui.scan.BookScanViewModel
 import io.github.jan.supabase.SupabaseClient
@@ -127,6 +128,13 @@ val appModule = module {
     // BookList ViewModel (本棚画面用)
     viewModel<BookListViewModel> {
         BookListViewModel(
+            bookDatabaseRepository = get()
+        )
+    }
+
+    // BookDetail ViewModel (本の詳細画面用)
+    viewModel<BookDetailViewModel> {
+        BookDetailViewModel(
             bookDatabaseRepository = get()
         )
     }
