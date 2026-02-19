@@ -32,12 +32,14 @@ import com.example.bookstack.ui.components.BookSpineCard
  *
  * @param viewModel BookListViewModel
  * @param onAddBookClick 書籍追加ボタンクリック時のコールバック
+ * @param onBookClick 書籍タップ時のコールバック
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookshelfScreen(
     viewModel: BookListViewModel,
-    onAddBookClick: () -> Unit
+    onAddBookClick: () -> Unit,
+    onBookClick: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -67,7 +69,10 @@ fun BookshelfScreen(
                     LoadingContent()
                 }
                 is BookListUiState.Success -> {
-                    BookshelfContent(books = state.books)
+                    BookshelfContent(
+                        books = state.books,
+                        onBookClick = onBookClick
+                    )
                 }
                 is BookListUiState.Empty -> {
                     EmptyContent(onAddBookClick = onAddBookClick)
@@ -109,9 +114,13 @@ private fun LoadingContent() {
  * 書籍一覧を本棚風に表示（改善版：Adaptive Grid）。
  *
  * @param books 表示する書籍リスト
+ * @param onBookClick 書籍タップ時のコールバック
  */
 @Composable
-private fun BookshelfContent(books: List<Book>) {
+private fun BookshelfContent(
+    books: List<Book>,
+    onBookClick: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -129,7 +138,10 @@ private fun BookshelfContent(books: List<Book>) {
                 key = { book -> book.id ?: book.isbn }
             ) { book ->
                 // 棚板と背表紙を含むコンポーネント
-                BookWithShelf(book = book)
+                BookWithShelf(
+                    book = book,
+                    onClick = { onBookClick(book.id ?: "") }
+                )
             }
         }
     }
@@ -139,9 +151,13 @@ private fun BookshelfContent(books: List<Book>) {
  * 棚板付きの背表紙コンポーネント。
  *
  * @param book 表示する書籍情報
+ * @param onClick クリック時のコールバック
  */
 @Composable
-private fun BookWithShelf(book: Book) {
+private fun BookWithShelf(
+    book: Book,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -164,7 +180,7 @@ private fun BookWithShelf(book: Book) {
         ) {
             BookSpineCard(
                 book = book,
-                onClick = { /* TODO: 詳細画面への遷移 */ }
+                onClick = onClick
             )
         }
 
