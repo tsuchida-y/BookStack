@@ -19,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.bookstack.ui.auth.AuthViewModel
+import com.example.bookstack.ui.bookdetail.BookDetailScreen
+import com.example.bookstack.ui.bookdetail.BookDetailViewModel
 import com.example.bookstack.ui.booklist.BookListViewModel
 import com.example.bookstack.ui.booklist.BookshelfScreen
 import com.example.bookstack.ui.scan.BookScanScreen
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
     private val authViewModel: AuthViewModel by viewModel()
     private val bookListViewModel: BookListViewModel by viewModel()
     private val bookScanViewModel: BookScanViewModel by viewModel()
+    private val bookDetailViewModel: BookDetailViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // 画面遷移の状態管理
-                    var showScanScreen by remember { mutableStateOf(false) }
+                    var currentScreen by remember { mutableStateOf<Screen>(Screen.Bookshelf) }
 
                     // 認証状態を監視
                     val sessionStatus by authViewModel.sessionStatus.collectAsState()
@@ -71,23 +74,40 @@ class MainActivity : ComponentActivity() {
                     when (sessionStatus) {
                         is SessionStatus.Authenticated -> {
                             Log.d(TAG, "SessionStatus: Authenticated")
-                            // ✅ 認証完了後に本棚画面またはスキャン画面を表示
-                            if (showScanScreen) {
-                                BookScanScreen(
-                                    viewModel = bookScanViewModel,
-                                    onNavigateBack = {
-                                        showScanScreen = false
-                                        // スキャン画面から戻ったら本棚をリロード
-                                        bookListViewModel.loadBooks()
-                                    }
-                                )
-                            } else {
-                                BookshelfScreen(
-                                    viewModel = bookListViewModel,
-                                    onAddBookClick = {
-                                        showScanScreen = true
-                                    }
-                                )
+                            // ✅ 認証完了後に画面を表示
+                            when (val screen = currentScreen) {
+                                is Screen.Bookshelf -> {
+                                    BookshelfScreen(
+                                        viewModel = bookListViewModel,
+                                        onAddBookClick = {
+                                            currentScreen = Screen.Scan
+                                        },
+                                        onBookClick = { bookId ->
+                                            currentScreen = Screen.Detail(bookId)
+                                        }
+                                    )
+                                }
+                                is Screen.Scan -> {
+                                    BookScanScreen(
+                                        viewModel = bookScanViewModel,
+                                        onNavigateBack = {
+                                            currentScreen = Screen.Bookshelf
+                                            // スキャン画面から戻ったら本棚をリロード
+                                            bookListViewModel.loadBooks()
+                                        }
+                                    )
+                                }
+                                is Screen.Detail -> {
+                                    BookDetailScreen(
+                                        viewModel = bookDetailViewModel,
+                                        bookId = screen.bookId,
+                                        onNavigateBack = {
+                                            currentScreen = Screen.Bookshelf
+                                            // 詳細画面から戻ったら本棚をリロード
+                                            bookListViewModel.loadBooks()
+                                        }
+                                    )
+                                }
                             }
                         }
                         is SessionStatus.NotAuthenticated -> {
@@ -105,6 +125,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+/**
+ * 画面遷移を管理するシールドクラス。
+ */
+sealed class Screen {
+    data object Bookshelf : Screen()
+    data object Scan : Screen()
+    data class Detail(val bookId: String) : Screen()
 }
 
 /**
