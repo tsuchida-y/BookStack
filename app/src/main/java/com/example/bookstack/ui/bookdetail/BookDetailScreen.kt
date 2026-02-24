@@ -85,6 +85,9 @@ fun BookDetailScreen(
                         onPageCountChange = { newPageCount ->
                             viewModel.updatePageCount(newPageCount)
                         },
+                        onReadingProgressUpdate = { newCurrentPage ->
+                            viewModel.updateReadingProgress(newCurrentPage)
+                        },
                         onDeleteBook = {
                             viewModel.deleteBook(state.book.id ?: "") {
                                 onNavigateBack()
@@ -124,11 +127,13 @@ private fun BookDetailContent(
     book: Book,
     onStatusChange: (ReadingStatus) -> Unit,
     onPageCountChange: (Int) -> Unit,
+    onReadingProgressUpdate: (Int) -> Unit,
     onDeleteBook: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showPageCountDialog by remember { mutableStateOf(false) }
+    var showReadingProgressDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -180,6 +185,13 @@ private fun BookDetailContent(
             onStatusChange = onStatusChange
         )
 
+        // 読書進捗記録セクション
+        ReadingProgressSection(
+            currentPage = book.currentPage,
+            totalPages = book.pageCount ?: 0,
+            onUpdateProgress = { showReadingProgressDialog = true }
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // 削除ボタン
@@ -221,6 +233,19 @@ private fun BookDetailContent(
                 onPageCountChange(newPageCount)
             },
             onDismiss = { showPageCountDialog = false }
+        )
+    }
+
+    // 読書進捗入力ダイアログ
+    if (showReadingProgressDialog) {
+        ReadingProgressDialog(
+            currentPage = book.currentPage,
+            totalPages = book.pageCount ?: 0,
+            onConfirm = { newCurrentPage ->
+                showReadingProgressDialog = false
+                onReadingProgressUpdate(newCurrentPage)
+            },
+            onDismiss = { showReadingProgressDialog = false }
         )
     }
 }
@@ -463,11 +488,148 @@ private fun PageCountEditDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val pageCount = pageCountText.toIntOrNull()
-                    if (pageCount == null || pageCount <= 0) {
-                        error = "有効な数値を入力してください"
+                    val newPageCount = pageCountText.toIntOrNull()
+                    if (newPageCount == null || newPageCount <= 0) {
+                        error = "正しいページ数を入力してください"
                     } else {
-                        onConfirm(pageCount)
+                        onConfirm(newPageCount)
+                    }
+                }
+            ) {
+                Text("保存")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("キャンセル")
+            }
+        }
+    )
+}
+
+/**
+ * 読書進捗セクション。
+ */
+@Composable
+private fun ReadingProgressSection(
+    currentPage: Int,
+    totalPages: Int,
+    onUpdateProgress: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "読書進捗",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                TextButton(onClick = onUpdateProgress) {
+                    Text("進捗を記録")
+                }
+            }
+
+            // 進捗バー
+            if (totalPages > 0) {
+                val progress = (currentPage.toFloat() / totalPages.toFloat()).coerceIn(0f, 1f)
+                
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "$currentPage / $totalPages ページ",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            text = "${(progress * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            } else {
+                Text(
+                    text = "ページ数が設定されていません",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 読書進捗入力ダイアログ。
+ */
+@Composable
+private fun ReadingProgressDialog(
+    currentPage: Int,
+    totalPages: Int,
+    onConfirm: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var newPageText by remember { mutableStateOf(currentPage.toString()) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("読書進捗を記録") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("現在読んでいるページ数を入力してください。")
+                OutlinedTextField(
+                    value = newPageText,
+                    onValueChange = {
+                        newPageText = it
+                        error = null
+                    },
+                    label = { Text("現在のページ") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = error != null,
+                    supportingText = error?.let { { Text(it) } },
+                    singleLine = true
+                )
+                if (totalPages > 0) {
+                    Text(
+                        text = "総ページ数: $totalPages",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val newPage = newPageText.toIntOrNull()
+                    if (newPage == null) {
+                        error = "正しいページ数を入力してください"
+                    } else if (totalPages > 0 && (newPage < 0 || newPage > totalPages)) {
+                        error = "0〜${totalPages}の範囲で入力してください"
+                    } else if (newPage < 0) {
+                        error = "0以上の値を入力してください"
+                    } else {
+                        onConfirm(newPage)
                     }
                 }
             ) {
