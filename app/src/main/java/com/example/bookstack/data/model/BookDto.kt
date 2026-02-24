@@ -39,6 +39,8 @@ data class BookDto(
     @SerialName("status")
     val status: String? = "unread", // unread/reading/completed
 
+    @SerialName("current_page")
+    val currentPage: Int? = 0, // 現在読んでいるページ数
 
     // embeddingは将来のAI機能用なので、現時点では含めない
 
@@ -63,7 +65,8 @@ fun Book.toBookDto(userId: String): BookDto {
         coverUrl = this.coverImageUrl,
         sizeType = this.bookSize?.name, // EnumをString型に変換
         pageCount = this.pageCount,
-        status = this.status // ステータスを設定
+        status = this.status, // ステータスを設定
+        currentPage = this.currentPage // 現在のページ数
     )
 }
 
@@ -85,6 +88,7 @@ fun BookDto.toBook(): Book {
                 BookSize.UNKNOWN
             }
         },
-        status = this.status ?: "unread" // ステータスを設定（デフォルトは未読）
+        status = this.status ?: "unread", // ステータスを設定（デフォルトは未読）
+        currentPage = this.currentPage ?: 0 // 現在のページ数（デフォルトは0）
     )
 }
