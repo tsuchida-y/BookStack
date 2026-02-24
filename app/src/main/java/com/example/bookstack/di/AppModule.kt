@@ -7,10 +7,13 @@ import com.example.bookstack.data.remote.book.BookDataSource
 import com.example.bookstack.data.remote.book.GoogleBooksDataSource
 import com.example.bookstack.data.remote.book.OpenBdDataSource
 import com.example.bookstack.data.remote.database.BookDatabaseDataSource
+import com.example.bookstack.data.remote.database.ReadingLogDataSource
 import com.example.bookstack.data.remote.database.SupabaseBookDatabaseDataSource
+import com.example.bookstack.data.remote.database.SupabaseReadingLogDataSource
 import com.example.bookstack.data.repository.AuthRepository
 import com.example.bookstack.data.repository.BookDatabaseRepository
 import com.example.bookstack.data.repository.BookRepository
+import com.example.bookstack.data.repository.ReadingLogRepository
 import com.example.bookstack.ui.auth.AuthViewModel
 import com.example.bookstack.ui.bookdetail.BookDetailViewModel
 import com.example.bookstack.ui.booklist.BookListViewModel
@@ -87,6 +90,11 @@ val appModule = module {
         SupabaseBookDatabaseDataSource(supabaseClient = get())
     }
 
+    // Reading Log DataSource (Supabase DB操作用)
+    single<ReadingLogDataSource> {
+        SupabaseReadingLogDataSource(supabaseClient = get())
+    }
+
     // ===== Data Layer: Repository =====
 
     // Auth Repository
@@ -106,6 +114,14 @@ val appModule = module {
     single {
         BookDatabaseRepository(
             bookDatabaseDataSource = get(),
+            authRepository = get()
+        )
+    }
+
+    // Reading Log Repository (読書記録用)
+    single {
+        ReadingLogRepository(
+            readingLogDataSource = get(),
             authRepository = get()
         )
     }
@@ -135,7 +151,8 @@ val appModule = module {
     // BookDetail ViewModel (本の詳細画面用)
     viewModel<BookDetailViewModel> {
         BookDetailViewModel(
-            bookDatabaseRepository = get()
+            bookDatabaseRepository = get(),
+            readingLogRepository = get()
         )
     }
 }
