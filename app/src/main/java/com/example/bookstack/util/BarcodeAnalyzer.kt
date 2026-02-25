@@ -18,6 +18,7 @@ class BarcodeAnalyzer(
 
     private val scanner: BarcodeScanner = BarcodeScanning.getClient()
 
+
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
 
@@ -36,9 +37,13 @@ class BarcodeAnalyzer(
                     for (barcode in barcodes) {
                         // 本(ISBN)のバーコードは EAN_13 形式で読み取られる
                         if (barcode.format == Barcode.FORMAT_EAN_13) {
-                            barcode.rawValue?.let { isbn ->
-                                // 検出したISBNコードをコールバック関数で通知
-                                onBarcodeDetected(isbn)
+                            barcode.rawValue?.let { code ->
+                                // ISBN-13形式の検証を行う
+                                if (isValidISBN13(code)) {
+                                    // 有効なISBN-13の場合のみコールバック関数で通知
+                                    onBarcodeDetected(code)
+                                }
+                                // ISBN-13以外のEAN-13コード（価格コードなど）は無視
                             }
                         }
                     }
