@@ -17,6 +17,7 @@ import com.example.bookstack.data.repository.ReadingLogRepository
 import com.example.bookstack.ui.auth.AuthViewModel
 import com.example.bookstack.ui.bookdetail.BookDetailViewModel
 import com.example.bookstack.ui.booklist.BookListViewModel
+import com.example.bookstack.ui.heatmap.ReadingHeatmapViewModel
 import com.example.bookstack.ui.scan.BookScanViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -152,6 +153,13 @@ val appModule = module {
     viewModel<BookDetailViewModel> {
         BookDetailViewModel(
             bookDatabaseRepository = get(),
+            readingLogRepository = get()
+        )
+    }
+
+    // ReadingHeatmap ViewModel (ヒートマップ画面用)
+    viewModel<ReadingHeatmapViewModel> {
+        ReadingHeatmapViewModel(
             readingLogRepository = get()
         )
     }
