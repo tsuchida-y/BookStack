@@ -7,6 +7,7 @@ import com.example.bookstack.data.model.toReadingLog
 import com.example.bookstack.data.model.toReadingLogDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import kotlinx.datetime.LocalDate
 
 /**
  * Supabase Postgrestを使用した読書記録データベース操作の実装。
@@ -61,6 +62,42 @@ class SupabaseReadingLogDataSource(
             Result.success(logs)
         } catch (e: Exception) {
             Log.e(TAG, "getReadingLogsByBookId: Failed", e)
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 指定された期間の読書ログを取得する
+     * @param userId ユーザーID
+     * @param startDate 期間の開始日（この日を含む）
+     * @param endDate 期間の終了日（この日を含む）
+     * @return 指定期間内の読書ログリスト
+     */
+    override suspend fun getReadingLogsByDateRange(
+        userId: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Result<List<ReadingLog>> {
+        return try {
+            Log.d(TAG, "getReadingLogsByDateRange: Getting logs from $startDate to $endDate for userId=$userId")
+
+            val readingLogDtos = supabaseClient
+                .from(TABLE_NAME)
+                .select {
+                    filter {
+                        eq("user_id", userId)
+                        gte("read_date", startDate.toString())
+                        lte("read_date", endDate.toString())
+                    }
+                }
+                .decodeList<ReadingLogDto>()
+
+            Log.d(TAG, "getReadingLogsByDateRange: Success - found ${readingLogDtos.size} logs")
+            val logs = readingLogDtos.map { it.toReadingLog() }
+            Result.success(logs)
+        } catch (e: Exception) {
+            Log.e(TAG, "getReadingLogsByDateRange: Failed", e)
             e.printStackTrace()
             Result.failure(e)
         }
