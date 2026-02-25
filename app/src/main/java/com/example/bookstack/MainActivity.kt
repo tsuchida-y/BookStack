@@ -23,6 +23,8 @@ import com.example.bookstack.ui.bookdetail.BookDetailScreen
 import com.example.bookstack.ui.bookdetail.BookDetailViewModel
 import com.example.bookstack.ui.booklist.BookListViewModel
 import com.example.bookstack.ui.booklist.BookshelfScreen
+import com.example.bookstack.ui.heatmap.ReadingHeatmapScreen
+import com.example.bookstack.ui.heatmap.ReadingHeatmapViewModel
 import com.example.bookstack.ui.scan.BookScanScreen
 import com.example.bookstack.ui.scan.BookScanViewModel
 import com.example.bookstack.ui.theme.BookStackTheme
@@ -46,6 +48,7 @@ class MainActivity : ComponentActivity() {
     private val bookListViewModel: BookListViewModel by viewModel()
     private val bookScanViewModel: BookScanViewModel by viewModel()
     private val bookDetailViewModel: BookDetailViewModel by viewModel()
+    private val readingHeatmapViewModel: ReadingHeatmapViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +87,9 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onBookClick = { bookId ->
                                             currentScreen = Screen.Detail(bookId)
+                                        },
+                                        onHeatmapClick = {
+                                            currentScreen = Screen.Heatmap
                                         }
                                     )
                                 }
@@ -105,6 +111,14 @@ class MainActivity : ComponentActivity() {
                                             currentScreen = Screen.Bookshelf
                                             // 詳細画面から戻ったら本棚をリロード
                                             bookListViewModel.loadBooks()
+                                        }
+                                    )
+                                }
+                                is Screen.Heatmap -> {
+                                    ReadingHeatmapScreen(
+                                        viewModel = readingHeatmapViewModel,
+                                        onNavigateBack = {
+                                            currentScreen = Screen.Bookshelf
                                         }
                                     )
                                 }
@@ -134,6 +148,7 @@ sealed class Screen {
     data object Bookshelf : Screen()
     data object Scan : Screen()
     data class Detail(val bookId: String) : Screen()
+    data object Heatmap : Screen()
 }
 
 /**
