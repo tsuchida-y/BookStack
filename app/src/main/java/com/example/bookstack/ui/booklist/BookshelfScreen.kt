@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,13 +34,15 @@ import com.example.bookstack.ui.components.BookSpineCard
  * @param viewModel BookListViewModel
  * @param onAddBookClick 書籍追加ボタンクリック時のコールバック
  * @param onBookClick 書籍タップ時のコールバック
+ * @param onHeatmapClick ヒートマップボタンクリック時のコールバック
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookshelfScreen(
     viewModel: BookListViewModel,
     onAddBookClick: () -> Unit,
-    onBookClick: (String) -> Unit = {}
+    onBookClick: (String) -> Unit = {},
+    onHeatmapClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -48,6 +51,14 @@ fun BookshelfScreen(
             TopAppBar(
                 title = { Text("本棚") },
                 actions = {
+                    // ヒートマップボタン
+                    IconButton(onClick = onHeatmapClick) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "読書ヒートマップ"
+                        )
+                    }
+                    // 書籍追加ボタン
                     IconButton(onClick = onAddBookClick) {
                         Icon(
                             imageVector = Icons.Default.Add,
